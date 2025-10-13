@@ -16,7 +16,7 @@ Whether you're feeling happy, calm, energetic, or moody — MoodFit ensures you 
 - 😊 **Mood-based Recommendations** via user input or expression  
 - 🧥 Intelligent **Rules-based Recommendation Engine** (upgradable to LLM-based reasoning)  
 - 💡 Responsive **Frontend Interface** (HTML, CSS, JS)  
-- 🧩 Modular **Python Backend** for easy feature integration  
+- 🧩 Modular Python backend for easy feature integration  
 - 🎨 Clean UI with dynamic outfit suggestions  
 
 ---
@@ -35,7 +35,8 @@ Whether you're feeling happy, calm, energetic, or moody — MoodFit ensures you 
 ## 🧭 Project Workflow
 ```mermaid
 graph TD
-A[User Input: Mood Selection or Detection] --> B[Weather Data Fetch via OpenWeather API]
-B --> C[Rules-Based Outfit Recommendation Engine (Current)]
-C --> D[Display Outfit Suggestions on UI]
-D --> E[Future: Replace Rules with LLM-based Reasoning for Smarter Contextual Output]
+A[User Input] --> B[Mood Selection or Detection]
+B --> C[Fetch Weather via API]
+C --> D[Rules-Based Recommendation Engine and will be replaced by LLM]
+D --> E[Generate Outfit Suggestions]
+E --> F[Display Stylish Recommendations on UI]
