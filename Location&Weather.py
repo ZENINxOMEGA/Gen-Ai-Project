@@ -30,17 +30,17 @@ def fetch_weather(lat=None, lon=None, city=None):
     Returns a dictionary with key weather details like temperature and conditions.
     """
     base_url = "https://api.openweathermap.org/data/2.5/weather"
-    params = {"appid": OPENWEATHER_API_KEY, "units": "metric"} # Use Celsius
+    query_data = {"appid": OPENWEATHER_API_KEY, "units": "metric"} # Use Celsius
 
     if lat is not None and lon is not None:
-        params.update({"lat": lat, "lon": lon})
+        query_data.update({"lat": lat, "lon": lon})
     elif city:
-        params.update({"q": city})
+        query_data.update({"q": city})
     else:
         # We can't get weather without a location!
         raise ValueError("You must provide either coordinates (lat,lon) or a city name.")
 
-    response = requests.get(base_url, params=params, timeout=8)
+    response = requests.get(base_url, params=query_data, timeout=8)
     data = response.json()
 
     # The API returns a 'cod' (code) field. 200 means "OK". Anything else is an error.
@@ -56,4 +56,5 @@ def fetch_weather(lat=None, lon=None, city=None):
         "wind": data["wind"]["speed"],
         "condition": data["weather"][0]["main"],       # e.g., "Clear", "Rain", "Clouds"
         "description": data["weather"][0]["description"] # e.g., "light rain"
+
     }
