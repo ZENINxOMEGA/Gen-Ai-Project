@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 # -------------------- CONFIGURATION --------------------
 # You can tweak these settings to change the app's behavior.
 
-OPENWEATHER_API_KEY = "c84e037d60c284b9877c3fb3d80d6b51"  
+OPENWEATHER_API_KEY = "********************************"  
 
 # How long (in seconds) the app should analyze your emotion from the webcam.
 EMOTION_SAMPLING_SECONDS = 8
@@ -331,3 +331,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
