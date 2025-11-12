@@ -49,20 +49,54 @@ FASHION_LABELS = [
 
 # -------------------- LOCATION & WEATHER MODULE --------------------
 
-def get_ip_location():
+def get_ip_location(timeout=5):
     """
-    Tries to find your location (latitude, longitude, city) based on your IP address.
-    This is a quick and easy way to get location without asking the user.
+    Try to fetch location from IP using multiple fallback services.
     """
+    
+    # --- Service 1: ipapi.co (Primary) ---
     try:
-        # A simple API that returns location data for your IP address.
-        response = requests.get("https://ipapi.co/json/", timeout=6)
+        url_1 = "https://ipapi.co/json/"
+        print("  > Attempting location lookup with ipapi.co...")
+        response = requests.get(url_1, timeout=timeout)
+        response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
         data = response.json()
-        return float(data["latitude"]), float(data["longitude"]), data.get("city", "")
+        
+        lat = data.get("latitude")
+        lon = data.get("longitude")
+        city = data.get("city")
+        
+        if lat and lon:
+            print(f"  > Success! Location found via ipapi.co: {city}")
+            return float(lat), float(lon), city or ""
+        
     except Exception as e:
-        # If it fails (e.g., no internet, API is down), we'll just return nothing.
-        print(f"IP location lookup failed: {e}")
-        return None, None, None
+        print(f"  > Info: Service 1 (ipapi.co) failed: {e}. Trying fallback.")
+
+    # --- Service 2: ip-api.com (Fallback) ---
+    try:
+        url_2 = "http://ip-api.com/json/" # Note: HTTP for this free endpoint
+        print("  > Attempting location lookup with ip-api.com...")
+        response = requests.get(url_2, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("status") == "success":
+            lat = data.get("lat")
+            lon = data.get("lon")
+            city = data.get("city")
+            
+            if lat and lon:
+                print(f"  > Success! Location found via ip-api.com: {city}")
+                return float(lat), float(lon), city or ""
+                
+    except Exception as e:
+        print(f"  > Info: Service 2 (ip-api.com) also failed: {e}.")
+
+    # ✅ If all services fail
+    print("IP location lookup failed after all attempts.")
+    return None, None, None
+
 
 def fetch_weather(lat=None, lon=None, city=None):
     """
