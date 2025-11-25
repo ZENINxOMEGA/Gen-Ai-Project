@@ -5,7 +5,7 @@ import requests
 import numpy as np
 import matplotlib.pyplot as plt
 
-OPENWEATHER_API_KEY = "********************************"  
+OPENWEATHER_API_KEY = "*********************************"  
 
 # -------------------- LOCATION & WEATHER MODULE --------------------
 def get_ip_location():
@@ -50,6 +50,7 @@ def fetch_weather(lat=None, lon=None, city=None):
         "condition": data["weather"][0]["main"],
         "description": data["weather"][0]["description"]
     }
+
 
 
 
