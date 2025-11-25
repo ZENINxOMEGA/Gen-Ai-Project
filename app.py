@@ -324,13 +324,11 @@ def load_emotion_model():
         emotion_model = load_model(MODEL_PATH)
     return emotion_model
 
-# === Weather config ===
-OPENWEATHER_API_KEY = "7d9dac083f86faab1c6d1f0ea76a1b4a"  # <-- replace with your key
+OPENWEATHER_API_KEY = "7d9dac083f86faab1c6d1f0ea76a1b4a"  
 
 def get_weather_for_city(city: str):
     """Call OpenWeatherMap API and return a compact dict."""
     if not OPENWEATHER_API_KEY or OPENWEATHER_API_KEY == "7d9dac083f86faab1c6d1f0ea76a1b4a":
-        # For demo / development you can hardcode something instead of raising
         return {
             "city": city,
             "temp": 26.0,
@@ -354,7 +352,6 @@ def get_weather_for_city(city: str):
         "icon": data["weather"][0]["icon"],
     }
 
-# === Outfit recommendation engine (intelligent rules) ===
 
 def categorize_temp(temp_c: float) -> str:
     if temp_c <= 15:
@@ -472,7 +469,6 @@ def get_outfit_recommendations(emotion: str, weather: dict):
         )
 
     else:
-        # Neutral / unknown
         add_suggestion(
             "Balanced Everyday Fit",
             "A versatile look that works in most situations while staying comfortable.",
@@ -483,8 +479,6 @@ def get_outfit_recommendations(emotion: str, weather: dict):
                 "Optional light jacket depending on weather",
             ],
         )
-
-    # Weather-specific overlays
     if is_rainy:
         add_suggestion(
             "Rain‑Ready Layered Fit",
@@ -532,7 +526,6 @@ def get_outfit_recommendations(emotion: str, weather: dict):
 
     return suggestions
 
-# === Image preprocessing & prediction ===
 
 def preprocess_image(image_path: str):
     """Preprocess image for VGG19-style model (224x224 RGB). Adjust if your model differs."""
@@ -554,7 +547,6 @@ def predict_emotion(image_path: str) -> str:
         return EMOTION_LABELS[idx]
     return "Neutral"
 
-# === Routes ===
 
 @app.route("/")
 def index():
@@ -562,7 +554,7 @@ def index():
 
 @app.route("/api/recommend", methods=["POST"])
 def api_recommend():
-    # 1. Get image
+
     if "image" not in request.files:
         return jsonify({"error": "No image file provided"}), 400
 
@@ -570,14 +562,13 @@ def api_recommend():
     if img_file.filename == "":
         return jsonify({"error": "Empty filename"}), 400
 
-    # 2. Save to a temporary path
+
     uploads_dir = os.path.join(BASE_DIR, "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
     filename = secure_filename(img_file.filename)
     img_path = os.path.join(uploads_dir, filename)
     img_file.save(img_path)
 
-    # 3. Get city & weather
     city = request.form.get("city", "Delhi")
     try:
         weather = get_weather_for_city(city)
@@ -588,21 +579,17 @@ def api_recommend():
             "description": f"weather-unavailable ({e})",
             "icon": "",
         }
-
-    # 4. Predict emotion
     try:
         emotion = predict_emotion(img_path)
     except Exception as e:
         return jsonify({"error": f"Emotion prediction failed: {e}"}), 500
     finally:
-        # Best effort cleanup
         try:
             if os.path.exists(img_path):
                 os.remove(img_path)
         except Exception:
             pass
 
-    # 5. Get recommendations
     outfits = get_outfit_recommendations(emotion, weather)
 
     return jsonify(
