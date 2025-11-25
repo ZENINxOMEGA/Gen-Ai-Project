@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import streamlit as st
 import google.generativeai as genai
 import cv2
@@ -280,3 +281,338 @@ if image:
                 show_fashion_samples(categories)
             else:
                 st.warning("Could not detect clothing items from AI response.")
+=======
+
+import os
+from flask import Flask, render_template, request, jsonify
+from werkzeug.utils import secure_filename
+import numpy as np
+import requests
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+
+app = Flask(__name__)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# === Emotion model config ===
+MODEL_FILENAME = "moodfit_emotion_model.h5"  # rename to your actual model file
+MODEL_PATH = os.path.join(BASE_DIR, "model", MODEL_FILENAME)
+
+# Adjust labels to match your own training
+EMOTION_LABELS = [
+    "Angry",
+    "Disgust",
+    "Fear",
+    "Happy",
+    "Neutral",
+    "Sad",
+    "Surprise",
+]
+
+emotion_model = None
+
+def load_emotion_model():
+    global emotion_model
+    if emotion_model is None:
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError(
+                f"Emotion model not found at {MODEL_PATH}. "
+                "Place your trained model file there and update MODEL_FILENAME if needed."
+            )
+        emotion_model = load_model(MODEL_PATH)
+    return emotion_model
+
+# === Weather config ===
+OPENWEATHER_API_KEY = "7d9dac083f86faab1c6d1f0ea76a1b4a"  # <-- replace with your key
+
+def get_weather_for_city(city: str):
+    """Call OpenWeatherMap API and return a compact dict."""
+    if not OPENWEATHER_API_KEY or OPENWEATHER_API_KEY == "7d9dac083f86faab1c6d1f0ea76a1b4a":
+        # For demo / development you can hardcode something instead of raising
+        return {
+            "city": city,
+            "temp": 26.0,
+            "description": "clear sky (demo)",
+            "icon": "01d",
+        }
+
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "appid": OPENWEATHER_API_KEY,
+        "units": "metric",
+    }
+    resp = requests.get(url, params=params, timeout=5)
+    resp.raise_for_status()
+    data = resp.json()
+    return {
+        "city": city,
+        "temp": float(data["main"]["temp"]),
+        "description": data["weather"][0]["description"],
+        "icon": data["weather"][0]["icon"],
+    }
+
+# === Outfit recommendation engine (intelligent rules) ===
+
+def categorize_temp(temp_c: float) -> str:
+    if temp_c <= 15:
+        return "cold"
+    if temp_c <= 25:
+        return "mild"
+    return "hot"
+
+def get_outfit_recommendations(emotion: str, weather: dict):
+    """Return a list of outfit suggestions based on emotion + weather."""
+    temp = weather.get("temp", 24.0)
+    temp_bucket = categorize_temp(temp)
+    desc = weather.get("description", "").lower()
+
+    suggestions = []
+
+    def add_suggestion(title, description, items):
+        suggestions.append(
+            {
+                "title": title,
+                "description": description,
+                "items": items,
+                "emotion": emotion,
+                "weather": weather,
+            }
+        )
+
+    is_rainy = "rain" in desc or "drizzle" in desc or "storm" in desc
+    is_sunny = "clear" in desc or "sun" in desc
+    is_cloudy = "cloud" in desc
+
+    em = emotion.lower()
+
+    if em in ("happy", "excited", "surprise"):
+        if temp_bucket == "hot":
+            add_suggestion(
+                "Vibrant Streetwear",
+                "You seem full of energy! Go for light, breathable fabrics with bright accent colors that match your upbeat mood.",
+                [
+                    "Oversized graphic t‑shirt",
+                    "Relaxed fit shorts or cargo joggers",
+                    "Chunky sneakers or sporty trainers",
+                    "Cap + minimal jewelry",
+                ],
+            )
+        elif temp_bucket == "mild":
+            add_suggestion(
+                "Smart-Casual Glow",
+                "Your happy mood + comfortable weather is perfect for a relaxed yet polished look.",
+                [
+                    "Well‑fitted jeans or chinos",
+                    "Lightweight shirt or polo",
+                    "White sneakers or loafers",
+                    "Layer with a casual jacket or shrug",
+                ],
+            )
+        else:
+            add_suggestion(
+                "Cozy Pop Layers",
+                "Stay warm but keep your joyful vibe with a pop of color in your outerwear or accessories.",
+                [
+                    "Warm sweatshirt or knitted sweater",
+                    "Dark jeans or wool trousers",
+                    "Coat / puffer jacket in a fun color",
+                    "Beanie + scarf",
+                ],
+            )
+
+    elif em in ("sad", "down", "tired"):
+        if temp_bucket == "hot":
+            add_suggestion(
+                "Easy-Breath Comfort",
+                "Soft, loose outfits to keep your body relaxed while your mind recharges.",
+                [
+                    "Loose cotton t‑shirt",
+                    "Soft joggers or relaxed shorts",
+                    "Slip‑on shoes or sliders",
+                    "Light neutral colors (beige, pastel blue, sage)",
+                ],
+            )
+        else:
+            add_suggestion(
+                "Soft Comfort Layers",
+                "Comfort‑first outfits with gentle fabrics to help you feel safe and grounded.",
+                [
+                    "Oversized hoodie or cardigan",
+                    "Joggers / leggings / relaxed fit jeans",
+                    "Warm socks + sneakers",
+                    "Muted, calming tones (greys, navy, forest green)",
+                ],
+            )
+
+    elif em in ("angry", "frustrated", "annoyed"):
+        add_suggestion(
+            "Clean Minimal Power Look",
+            "Structured, minimal outfits can help you feel more in control and less chaotic.",
+            [
+                "Solid color t‑shirt or shirt (black/white/charcoal)",
+                "Straight‑fit jeans or trousers",
+                "Simple sneakers or boots",
+                "Minimal accessories, clean lines",
+            ],
+        )
+
+    elif em in ("fear", "anxious", "worried"):
+        add_suggestion(
+            "Grounding Essentials",
+            "Soft layers and secure footwear to help your body feel safe and supported.",
+            [
+                "Soft knit top or sweatshirt",
+                "Comfortable jeans / joggers",
+                "Closed shoes with good grip",
+                "Optional: a familiar jacket you love",
+            ],
+        )
+
+    else:
+        # Neutral / unknown
+        add_suggestion(
+            "Balanced Everyday Fit",
+            "A versatile look that works in most situations while staying comfortable.",
+            [
+                "Plain t‑shirt or casual shirt",
+                "Jeans / chinos",
+                "Sneakers",
+                "Optional light jacket depending on weather",
+            ],
+        )
+
+    # Weather-specific overlays
+    if is_rainy:
+        add_suggestion(
+            "Rain‑Ready Layered Fit",
+            "Since it might rain, stay dry without losing style.",
+            [
+                "Water‑resistant jacket or hoodie",
+                "Quick‑dry pants or dark jeans",
+                "Water‑proof sneakers / boots",
+                "Umbrella or cap",
+            ],
+        )
+    elif is_sunny and temp_bucket == "hot":
+        add_suggestion(
+            "Sun‑Shield Summer Fit",
+            "Protect yourself from the sun while staying fresh and stylish.",
+            [
+                "Light linen or cotton shirt",
+                "Shorts or loose trousers",
+                "Sunglasses + cap",
+                "Breathable sneakers or sandals",
+            ],
+        )
+    elif is_cloudy and temp_bucket != "hot":
+        add_suggestion(
+            "Cloudy Day Casual",
+            "Soft layers for slightly cool, cloudy weather.",
+            [
+                "Long‑sleeve tee or henley",
+                "Jeans / joggers",
+                "Sneakers",
+                "Light jacket / overshirt",
+            ],
+        )
+
+    if not suggestions:
+        add_suggestion(
+            "Fallback Everyday Look",
+            "We could not match a specific rule, so here is a safe everyday outfit.",
+            [
+                "Basic tee",
+                "Neutral jeans",
+                "Sneakers",
+            ],
+        )
+
+    return suggestions
+
+# === Image preprocessing & prediction ===
+
+def preprocess_image(image_path: str):
+    """Preprocess image for VGG19-style model (224x224 RGB). Adjust if your model differs."""
+    img = load_img(image_path, target_size=(224, 224))
+    x = img_to_array(img)
+    x = x / 255.0
+    x = np.expand_dims(x, axis=0)
+    return x
+
+def predict_emotion(image_path: str) -> str:
+    model = load_emotion_model()
+    x = preprocess_image(image_path)
+    preds = model.predict(x)
+    if preds.ndim == 2:
+        idx = int(np.argmax(preds[0]))
+    else:
+        idx = int(np.argmax(preds))
+    if 0 <= idx < len(EMOTION_LABELS):
+        return EMOTION_LABELS[idx]
+    return "Neutral"
+
+# === Routes ===
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/recommend", methods=["POST"])
+def api_recommend():
+    # 1. Get image
+    if "image" not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    img_file = request.files["image"]
+    if img_file.filename == "":
+        return jsonify({"error": "Empty filename"}), 400
+
+    # 2. Save to a temporary path
+    uploads_dir = os.path.join(BASE_DIR, "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+    filename = secure_filename(img_file.filename)
+    img_path = os.path.join(uploads_dir, filename)
+    img_file.save(img_path)
+
+    # 3. Get city & weather
+    city = request.form.get("city", "Delhi")
+    try:
+        weather = get_weather_for_city(city)
+    except Exception as e:
+        weather = {
+            "city": city,
+            "temp": 24.0,
+            "description": f"weather-unavailable ({e})",
+            "icon": "",
+        }
+
+    # 4. Predict emotion
+    try:
+        emotion = predict_emotion(img_path)
+    except Exception as e:
+        return jsonify({"error": f"Emotion prediction failed: {e}"}), 500
+    finally:
+        # Best effort cleanup
+        try:
+            if os.path.exists(img_path):
+                os.remove(img_path)
+        except Exception:
+            pass
+
+    # 5. Get recommendations
+    outfits = get_outfit_recommendations(emotion, weather)
+
+    return jsonify(
+        {
+            "emotion": emotion,
+            "weather": weather,
+            "outfits": outfits,
+        }
+    )
+
+if __name__ == "__main__":
+    app.run(debug=True)
+>>>>>>> ce239939 (just added backend to the frontend)

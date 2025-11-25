@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ MoodFit - AI Outfit Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              neonPink: '#ff006e',
+              neonPurple: '#7209b7',
+              neonCyan: '#00d9ff',
+              neonGreen: '#8338ec',
+              deepDark: '#0a0e27',
+              darkerDark: '#05050d',
+              cardBg: 'rgba(15, 15, 40, 0.7)',
+              accentGray: '#8B92B0'
+            },
+            boxShadow: {
+              neon: '0 0 20px #ff006e, 0 0 40px rgba(255, 0, 110, 0.3)',
+              neonPurple: '0 0 20px #7209b7, 0 0 40px rgba(114, 9, 183, 0.3)',
+              neonCyan: '0 0 20px #00d9ff, 0 0 40px rgba(0, 217, 255, 0.3)',
+              neonGlow: '0 0 30px rgba(255, 0, 110, 0.5)',
+            },
+            fontFamily: {
+              display: ['Space Grotesk', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+            },
+            animation: {
+              fadeIn: 'fadeIn 0.8s ease-in',
+              slideUp: 'slideUp 0.6s ease-out',
+              glow: 'glow 2.5s ease-in-out infinite',
+              pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              glow: {
+                '0%, 100%': { textShadow: '0 0 15px #ff1493, 0 0 30px #9933ff' },
+                '50%': { textShadow: '0 0 25px #00eaff, 0 0 45px #ff1493' },
+              },
+            }
+          },
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Starfield effect styles */
+      .starfield {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .star {
+        position: absolute;
+        border-radius: 50%;
+        background: white;
+        opacity: 0.6;
+        box-shadow: 0 0 8px #ff1493, 0 0 12px #00eaff;
+        animation: twinkle 4s infinite, moveStar var(--move-duration, 20s) linear infinite;
+        --move-x: 0px;
+        --move-y: 0px;
+        transform: translate(var(--move-x), var(--move-y));
+      }
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+      @keyframes moveStar {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(var(--move-x), var(--move-y)); }
+      }
+      * {
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
+      
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gradient-to-br from-[#05050d] via-[#0a0e27] to-black text-white font-body overflow-x-hidden">
+    <!-- Enhanced header with better spacing and gradient backdrop -->
+    <header class="flex justify-between items-center px-6 md:px-10 py-5 bg-gradient-to-b from-black/80 to-transparent border-none sticky top-0 z-50" style="backdrop-filter: blur(12px);">
+      <div class="text-neonPink font-display font-bold text-3xl drop-shadow-[0_0_15px_#ff1493] tracking-wider">
+         MoodFit
+      </div>
+
+      <nav class="hidden md:flex">
+        <ul class="flex gap-8 text-accentGray justify-end text-sm font-medium">
+          <li><a href="#home" class="hover:text-neonPink hover:drop-shadow-[0_0_10px_#ff1493] transition-all duration-300">Home</a></li>
+          <li><a href="#about" class="hover:text-neonPink hover:drop-shadow-[0_0_10px_#ff1493] transition-all duration-300">How It Works</a></li>
+          <li><a href="#upload" class="hover:text-neonPink hover:drop-shadow-[0_0_10px_#ff1493] transition-all duration-300">Try It</a></li>
+          <li><a href="#contact" class="hover:text-neonPink hover:drop-shadow-[0_0_10px_#ff1493] transition-all duration-300">Contact</a></li>
+        </ul>
+      </nav>
+      
+      <!-- Mobile menu button -->
+      <button class="md:hidden text-neonPink text-2xl">☰</button>
+    </header>
+
+    <!-- Hero section with improved typography and gradient background -->
+    <section id="home" class="relative text-center py-24 px-6 flex flex-col items-center justify-center min-h-screen w-full overflow-hidden">
+      <div class="starfield" id="starfield"></div>
+      <div class="max-w-4xl mx-auto relative z-10 animate-fadeIn">
+        <h1 class="text-6xl md:text-8xl font-display font-bold mb-6 leading-tight" style="background: linear-gradient(135deg, #ff1493, #9933ff, #00eaff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+          Dress for Your Vibe
+        </h1>
+        <p class="max-w-2xl mx-auto text-accentGray text-lg md:text-xl leading-relaxed mb-12 animate-slideUp">
+          Discover outfits that match your mood and the weather. MoodFit blends emotion and environment to help you express yourself—beautifully, effortlessly, authentically.
+        </p>
+        <a href="#about" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-neonPink rounded-full hover:shadow-neon transition-all duration-300 font-semibold text-neonPink hover:text-white">
+          Explore Now
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+      
+      <!-- Improved scroll indicator -->
+      <button onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-neonCyan animate-bounce hover:scale-110 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      </button>
+    </section>
+
+    <!-- Enhanced "How It Works" section with better card designs -->
+    <section id="about" class="text-center py-20 px-6">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-5xl md:text-6xl font-display font-bold text-neonPink mb-4">How MoodFit Works</h2>
+        <p class="max-w-2xl mx-auto text-accentGray text-lg mb-16">
+          Three simple steps to find your perfect outfit. We analyze your mood and weather to create personalized recommendations.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-1 items-center workflow">
+          <!-- Step 1 -->
+          <div class="step group relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-neonPink/0 to-neonPurple/0 group-hover:from-neonPink/10 group-hover:to-neonPurple/10 rounded-2xl transition-all duration-300"></div>
+            <div class="relative bg-cardBg border border-neonPurple/30 hover:border-neonPink/60 rounded-2xl p-8 transition-all duration-300 hover:shadow-neon">
+              <div class="text-5xl mb-4">📸</div>
+              <h3 class="text-xl font-display font-bold text-neonPink mb-3">Capture Emotion</h3>
+              <p class="text-sm text-accentGray leading-relaxed">Upload or take a photo of yourself and let our AI detect your current mood.</p>
+            </div>
+          </div>
+          
+          <div class="hidden md:flex justify-center">
+            <svg class="w-8 h-8 text-neonCyan animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+          
+          <!-- Step 2 -->
+          <div class="step group relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-neonCyan/0 to-neonPurple/0 group-hover:from-neonCyan/10 group-hover:to-neonPurple/10 rounded-2xl transition-all duration-300"></div>
+            <div class="relative bg-cardBg border border-neonPurple/30 hover:border-neonCyan/60 rounded-2xl p-8 transition-all duration-300 hover:shadow-neon">
+              <div class="text-5xl mb-4">🌦</div>
+              <h3 class="text-xl font-display font-bold text-neonCyan mb-3">Check Weather</h3>
+              <p class="text-sm text-accentGray leading-relaxed">We automatically fetch your local weather to give accurate recommendations.</p>
+            </div>
+          </div>
+          
+          <div class="hidden md:flex justify-center">
+            <svg class="w-8 h-8 text-neonGreen animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+          
+          <!-- Step 3 -->
+          <div class="step group relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-neonGreen/0 to-neonPink/0 group-hover:from-neonGreen/10 group-hover:to-neonPink/10 rounded-2xl transition-all duration-300"></div>
+            <div class="relative bg-cardBg border border-neonPurple/30 hover:border-neonGreen/60 rounded-2xl p-8 transition-all duration-300 hover:shadow-neon">
+              <div class="text-5xl mb-4">👗</div>
+              <h3 class="text-xl font-display font-bold text-neonGreen mb-3">Get Outfit</h3>
+              <p class="text-sm text-accentGray leading-relaxed">Receive personalized outfit suggestions tailored to your mood and weather.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced upload section with better layout and styling -->
+    <section id="upload" class="py-24 px-6">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-5xl md:text-6xl font-display font-bold text-neonPink mb-4 text-center">Your Style Journey</h2>
+        <p class="text-center text-accentGray text-lg mb-16 max-w-2xl mx-auto">Upload your photo or take a selfie to get started. Let AI analyze your mood and weather to recommend the perfect outfit.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Upload Card -->
+          <div class="group">
+            <div class="bg-cardBg border hover:border-neonPink/80 rounded-2xl shadow-neon hover:shadow-neon p-8 transition-all duration-300">
+              <h3 class="text-2xl font-display font-bold text-neonPink mb-6">Upload Your Mood</h3>
+              
+              <div class="space-y-4">
+                <div class="relative">
+                  <input
+                    type="file"
+                    id="imageUpload"
+                    accept="image/*"
+                    class="block w-full text-sm text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-neonPink file:to-neonPurple file:text-white hover:file:shadow-neon file:transition-all file:duration-300 cursor-pointer"
+                  />
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <button id="captureBtn" class="bg-transparent border-2 border-neonCyan px-6 py-3 rounded-xl text-neonCyan font-semibold transition-all duration-300 hover:scale-105">
+                    📷 Capture
+                  </button>
+                  <button id="processBtn" class="bg-transparent border-2 border-neonPink px-6 py-3 rounded-xl text-neonPink font-semibold transition-all duration-300 hover:scale-105">
+                    ✨ Analyze
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Result Card -->
+          <div class="group">
+            <div class="bg-cardBg border hover:border-neonGreen/80 rounded-2xl shadow-neon hover:shadow-neon p-8 transition-all duration-300">
+              <h3 class="text-2xl font-display font-bold text-neonGreen mb-6">Your Outfit</h3>
+              
+              <div class="bg-black/40 border rounded-xl p-6 mb-6 min-h-48 flex items-center justify-center">
+                <p id="outfitText" class="text-accentGray text-center leading-relaxed">
+                  Upload your mood photo and wait for AI magic ✨
+                </p>
+              </div>
+              
+              <button id="refreshBtn" class="w-full bg-transparent border-2 border-neonGreen text-neonGreen px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105">
+                🔄 Re-generate
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced contact section with better form styling -->
+    <section id="contact" class="py-24 px-6 bg-gradient-to-b from-transparent via-neonPurple/5 to-transparent">
+      <div class="max-w-6xl mx-auto">
+        <h1 class="text-5xl md:text-6xl font-display font-bold text-neonPink text-center mb-16">Get In Touch</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <!-- Contact Info -->
+          <div class="space-y-8">
+            <h3 class="text-2xl font-display font-bold text-neonCyan">Contact Information</h3>
+            <p class="text-accentGray leading-relaxed">
+              Have a question or want to connect? We'd love to hear from you. Reach out anytime.
+            </p>
+            
+            <div class="space-y-6">
+              <div class="flex gap-4 group">
+                <div class="flex-shrink-0">
+                  <img src="envelope.png" alt="Email" class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_#ff1493]" />
+                </div>
+                <div>
+                  <h5 class="font-semibold text-neonPink mb-1">Email</h5>
+                  <a href="mailto:krishpathak79@gmail.com" class="text-accentGray hover:text-neonCyan transition-colors">krishpathak79@gmail.com</a>
+                </div>
+              </div>
+              
+              <div class="flex gap-4 group">
+                <div class="flex-shrink-0">
+                  <img src="phone-call.png" alt="Phone" class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_#ff1493]" />
+                </div>
+                <div>
+                  <h5 class="font-semibold text-neonPink mb-1">Phone</h5>
+                  <a href="tel:8273104640" class="text-accentGray hover:text-neonCyan transition-colors">+91 8273104640</a>
+                </div>
+              </div>
+              
+              <div class="flex gap-4 group">
+                <div class="flex-shrink-0">
+                  <img src="marker.png" alt="Location" class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_#ff1493]" />
+                </div>
+                <div>
+                  <h5 class="font-semibold text-neonPink mb-1">Location</h5>
+                  <span class="text-accentGray">Mathura, Uttar Pradesh</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Contact Form -->
+          <div class="bg-cardBg border border-neonPurple/40 hover:border-neonPink/60 rounded-2xl shadow-neon hover:shadow-neon p-8 transition-all duration-300">
+            <form action="https://formspree.io/f/xwpopaka" method="post" class="space-y-5">
+              <h4 class="text-2xl font-display font-bold text-neonGreen mb-2">Send a Message</h4>
+              <p class="text-accentGray text-sm mb-6">Fill out the form and we'll get back to you shortly.</p>
+              
+              <div>
+                <label for="name" class="block text-accentGray text-sm font-medium mb-2">Name</label>
+                <input type="text" name="Name" id="name" class="w-full px-4 py-3 rounded-lg bg-black/40 border border-neonPurple/30 hover:border-neonPurple/60 text-white focus:border-neonPink focus:ring-2 focus:ring-neonPink/30 transition-all" required>
+              </div>
+              
+              <div>
+                <label for="email" class="block text-accentGray text-sm font-medium mb-2">Email</label>
+                <input type="email" name="Email" id="email" class="w-full px-4 py-3 rounded-lg bg-black/40 border border-neonPurple/30 hover:border-neonPurple/60 text-white focus:border-neonPink focus:ring-2 focus:ring-neonPink/30 transition-all" required>
+              </div>
+              
+              <div>
+                <label for="message" class="block text-accentGray text-sm font-medium mb-2">Message</label>
+                <textarea name="message" id="message" rows="4" class="w-full px-4 py-3 rounded-lg bg-black/40 border border-neonPurple/30 hover:border-neonPurple/60 text-white focus:border-neonPink focus:ring-2 focus:ring-neonPink/30 transition-all resize-none" placeholder="Your message..." required></textarea>
+              </div>
+              
+              <button type="submit" class="w-full bg-transparent border-2 border-neonPink text-neonPink font-semibold py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-neon">
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced footer with better styling -->
+    <footer class="py-10 px-6 border-t border-neonPurple/20 bg-gradient-to-t from-black/60 to-transparent">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h3 class="text-neonPink font-display font-bold mb-4">MoodFit</h3>
+            <p class="text-accentGray text-sm">Your AI-powered outfit companion for every mood and weather.</p>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-accentGray text-sm">
+              <li><a href="#home" class="hover:text-neonPink transition-colors">Home</a></li>
+              <li><a href="#about" class="hover:text-neonPink transition-colors">How It Works</a></li>
+              <li><a href="#upload" class="hover:text-neonPink transition-colors">Try It</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-4">Follow Us</h4>
+            <div class="flex gap-4">
+              <a href="#" class="text-accentGray hover:text-neonPink transition-colors">Twitter</a>
+              <a href="#" class="text-accentGray hover:text-neonPink transition-colors">Instagram</a>
+              <a href="#" class="text-accentGray hover:text-neonPink transition-colors">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t border-neonPurple/20 pt-8 text-center text-accentGray text-sm">
+          <p>© 2025 MoodFit | All rights reserved. Made with ⚡ creativity</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+
+      // ==== MoodFit Flask Backend Integration ====
+      const imageInput = document.getElementById('imageUpload');
+      const processBtn = document.getElementById('processBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const outfitText = document.getElementById('outfitText');
+
+      let lastSuggestions = [];
+      let suggestionIndex = 0;
+
+      function renderSuggestion(idx) {
+        if (!lastSuggestions || lastSuggestions.length === 0) {
+          return;
+        }
+        const s = lastSuggestions[idx % lastSuggestions.length];
+        const lines = [];
+        lines.push(`🧠 Mood detected: ${s.emotion}`);
+        if (s.weather && s.weather.city) {
+          lines.push(`🌤 Weather in ${s.weather.city}: ${s.weather.temp}°C, ${s.weather.description}`);
+        }
+        lines.push("");
+        lines.push(`✨ Outfit suggestion: ${s.title}`);
+        lines.push(s.description);
+        if (s.items && s.items.length) {
+          lines.push("");
+          lines.push("🛍 Try pairing:");
+          s.items.forEach(item => lines.push(`• ${item}`));
+        }
+        outfitText.textContent = lines.join("\n");
+      }
+
+      async function analyzeMoodAndWeather() {
+        if (!imageInput || imageInput.files.length === 0) {
+          alert("Please upload a mood photo first.");
+          return;
+        }
+
+        const file = imageInput.files[0];
+        let city = window.prompt("Enter your city for weather (e.g. Delhi):", "Delhi");
+        if (!city) {
+          city = "Delhi";
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("city", city);
+
+        if (outfitText) {
+          outfitText.textContent = "Analyzing your mood and weather... ⏳";
+        }
+
+        try {
+          const resp = await fetch("/api/recommend", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!resp.ok) {
+            throw new Error(`Server error: ${resp.status}`);
+          }
+
+          const data = await resp.json();
+          lastSuggestions = data.outfits || [];
+          suggestionIndex = 0;
+
+          if (!lastSuggestions.length) {
+            outfitText.textContent = data.message || "No outfit suggestions received. Please try again.";
+            return;
+          }
+
+          renderSuggestion(suggestionIndex);
+        } catch (err) {
+          console.error(err);
+          if (outfitText) {
+            outfitText.textContent = "Something went wrong while talking to the AI backend. Please try again.";
+          }
+        }
+      }
+
+      if (processBtn) {
+        processBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          analyzeMoodAndWeather();
+        });
+      }
+
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (!lastSuggestions.length) return;
+          suggestionIndex = (suggestionIndex + 1) % lastSuggestions.length;
+          renderSuggestion(suggestionIndex);
+        });
+      }
+
+      // ==== End MoodFit Integration ====
+
+      // Smooth scroll navigation
+      document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+              window.scrollTo({
+                top: target.offsetTop - 80,
+                behavior: 'smooth'
+              });
+            }
+          }
+        });
+      });
+
+      // Starfield effect
+      const starfield = document.getElementById('starfield');
+      for(let i=0;i<50;i++){
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.top = `${Math.random()*100}%`;
+        star.style.left = `${Math.random()*100}%`;
+        const size = 1.5 + Math.random()*2.5;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.animationDelay = `${Math.random()*4}s`;
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 40 + Math.random() * 60;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+        star.style.setProperty('--move-x', `${dx}px`);
+        star.style.setProperty('--move-y', `${dy}px`);
+        star.style.setProperty('--move-duration', `${18 + Math.random()*12}s`);
+
+        starfield.appendChild(star);
+      }
+
+      // ScrollReveal animations
+      ScrollReveal().reveal('header', { delay: 100, duration: 600, origin: 'top', distance: '20px' });
+      ScrollReveal().reveal('.workflow .step', { interval: 150, duration: 800, origin: 'bottom', distance: '30px' });
+      ScrollReveal().reveal('#upload', { delay: 300, duration: 700, origin: 'bottom', distance: '40px' });
+      ScrollReveal().reveal('#contact', { delay: 300, duration: 700, origin: 'bottom', distance: '40px' });
+
+    </script>
+  </body>
+</html>

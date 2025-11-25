@@ -1,0 +1,590 @@
+/* Updated with premium design system */
+
+/* ---------- BASE STYLES ---------- */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #05050d, #0a0e27, #000);
+  color: #fff;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- HEADER ---------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: rgba(0, 0, 0, 0.7);
+  border-bottom: 1px solid rgba(153, 51, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 20, 147, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #ff1493;
+  text-shadow: 0 0 15px #ff1493, 0 0 30px #9933ff;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 3px;
+  animation: neonGlowHeading 2.5s infinite;
+  transition: color 0.3s, text-shadow 0.3s, transform 0.3s;
+}
+
+@keyframes neonGlowHeading {
+  0%, 100% {
+    text-shadow: 0 0 15px #ff1493, 0 0 30px #9933ff;
+    color: #ff1493;
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 25px #00eaff, 0 0 40px #ff1493;
+    color: #00eaff;
+    transform: scale(1.02);
+  }
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+nav a {
+  color: #8B92B0;
+  text-decoration: none;
+  font-size: 1em;
+  font-weight: 500;
+  transition: 0.3s;
+  padding: 8px 12px;
+  border-radius: 6px;
+  position: relative;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff1493, #00eaff);
+  transition: width 0.3s ease;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+nav a:hover {
+  color: #ff1493;
+  text-shadow: 0 0 8px #ff1493;
+}
+
+/* ---------- AUTH BUTTONS ---------- */
+.auth-slide, .authSticky {
+  position: relative;
+  display: inline-flex;
+  border: 2px solid #cc33ff;
+  border-radius: 30px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 15px #6600ff88, 0 0 25px #cc33ff44;
+}
+
+.auth-slide button, .authSticky button {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(90deg, #cc33ff, #6600ff);
+  color: #fff;
+  font-weight: 500;
+  font-size: 1em;
+  border: none;
+  padding: 10px 28px;
+  cursor: pointer;
+  border-radius: 30px;
+  margin: 0 2px;
+  box-shadow: 0 0 10px #cc33ff, 0 0 20px #00eaff;
+  transition: color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+
+.auth-slide button:hover, .authSticky button:hover {
+  color: #000;
+  background: linear-gradient(90deg, #00eaff, #cc33ff);
+  box-shadow: 0 0 25px #ff33cc, 0 0 50px #00eaff;
+}
+
+/* ---------- SECTIONS ---------- */
+#home {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ---------- INTRO SECTION ---------- */
+.intro-section {
+  text-align: center;
+  padding: 90px 20px 40px 20px;
+  /* height: 600px; */
+}
+
+.intro-section h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: 3.5em;
+  font-weight: bold;
+  color: #cc33ff;
+  margin-bottom: 18px;
+  text-shadow: 0 0 15px #cc33ff, 0 0 30px #6600ff;
+  animation: neonGlowHeading 2.5s infinite;
+}
+
+.intro-section p {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.15em;
+  color: #b3b3b3;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  padding: 18px 0;
+  box-shadow: 0 0 10px #6600ff44;
+}
+
+/* ---------- ABOUT SECTION ---------- */
+.about-section {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.about-section h2 {
+  font-size: 2.2em;
+  color: #cc33ff;
+  margin-bottom: 18px;
+  text-shadow: 0 0 10px #cc33ff;
+}
+
+.about-section p {
+  max-width: 600px;
+  margin: 0 auto 30px auto;
+  color: #b3b3b3;
+  font-size: 1.1em;
+}
+
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.workflow .step {
+  background: rgba(10, 6, 58, 0.85);
+  border: 2px solid #cc33ff;
+  border-radius: 18px;
+  padding: 28px 18px;
+  width: 220px;
+  height: 260px;
+  text-align: center;
+  box-shadow: 0 0 20px #6600ff, 0 0 40px #cc33ff;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.step {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step:hover {
+  transform: translateY(-8px);
+}
+
+.workflow .step h3 {
+  color: #cc33ff;
+  font-size: 1.2em;
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px #cc33ff;
+}
+
+.workflow .step p {
+  color: #b3b3b3;
+  font-size: 1em;
+}
+
+/* ---------- MAIN SECTION ---------- */
+.main-section {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.upload-row {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .upload-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.upload-area, .suggestion-card {
+  background: rgba(10, 6, 58, 0.85);
+  border: 2px solid #cc33ff;
+  border-radius: 18px;
+  padding: 28px 18px;
+  width: 320px;
+  /* box-shadow: 0 0 20px #6600ff, 0 0 40px #cc33ff; */
+  margin-bottom: 0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.upload-area:hover, .suggestion-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 30px #9933ff, 0 0 60px #00eaff;
+}
+
+.upload-area input[type="file"] {
+  display: block;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 8px;
+  background: #1a0033;
+  border: 2px solid #6600ff;
+  color: white;
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+.upload-area input[type="file"]:focus {
+  border-color: #cc33ff;
+  box-shadow: 0 0 10px #cc33ff;
+}
+
+.upload-area .button-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.upload-area button {
+  flex: 1;
+  background: linear-gradient(90deg, #cc33ff, #6600ff);
+  border: none;
+  color: white;
+  padding: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #b366ff;
+  font-weight: 600;
+  font-size: 1em;
+  transition: 0.3s;
+}
+
+/* .upload-area button:hover {
+  background: linear-gradient(90deg, #00eaff, #cc33ff);
+  color: #000;
+  box-shadow: 0 0 25px #ff33cc, 0 0 50px #00eaff;
+  transform: scale(1.08);
+} */
+
+.suggestion-card h3 {
+  color: #cc33ff;
+  font-size: 1.2em;
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px #cc33ff;
+}
+
+.suggestion-card p {
+  color: #b3b3b3;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.suggestion-card img {
+  display: block;
+  margin: 0 auto 12px auto;
+  border-radius: 8px;
+  border: 2px solid #cc33ff;
+  box-shadow: 0 0 20px #00eaff;
+  width: 90%;
+  max-width: 180px;
+  height: auto;
+}
+
+.suggestion-card button {
+  background: linear-gradient(90deg, #cc33ff, #39ff14);
+  border: none;
+  color: white;
+  padding: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #b366ff;
+  font-weight: 600;
+  font-size: 1em;
+  transition: 0.3s;
+  width: 100%;
+}
+
+.suggestion-card button:hover {
+  background: linear-gradient(90deg, #00eaff, #cc33ff);
+  color: #000;
+  box-shadow: 0 0 25px #ff33cc, 0 0 50px #00eaff;
+  transform: scale(1.08);
+}
+
+/* ---------- BUTTONS ---------- */
+button {
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  border: none;
+  font-size: 1em;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ---------- FORMS ---------- */
+input[type="file"],
+input[type="text"],
+input[type="email"],
+textarea {
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover,
+input:hover,
+textarea:hover {
+  border-color: rgba(255, 20, 147, 0.6);
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+  text-align: center;
+  padding: 30px 0;
+  border-top: 1px solid rgba(153, 51, 255, 0.2);
+  color: #aaa;
+  background: transparent;
+}
+
+footer p {
+  margin: 0;
+  font-size: 1em;
+  color: #b3b3b3;
+}
+
+footer a {
+  color: #ff1493;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+footer a:hover {
+  color: #00eaff;
+}
+
+.socials {
+  display: flex;
+  gap: 18px;
+}
+
+.socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  color: #b3b3b3;
+  text-shadow: 0 0 5px #9900ff;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.socials a:hover {
+  color: #cc33ff;
+  transform: scale(1.15);
+}
+
+.socials svg {
+  width: 28px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+}
+
+/* ---------- SCROLL REVEAL ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Palette & helpers */
+:root{
+  --accent: #6c4ae2;      /* deep violet (replaces pink/green accents) */
+  --accent-cyan: #00b6ff; /* electric cyan */
+  --muted: #8b92b0;
+  --card-bg: rgba(15,15,40,0.7);
+  --glass: rgba(0,0,0,0.4);
+  --btn-shadow: 0 10px 30px rgba(108,74,226,0.16), 0 0 40px rgba(0,182,255,0.05);
+  --btn-shadow-strong: 0 18px 50px rgba(108,74,226,0.20), 0 0 60px rgba(0,182,255,0.08);
+}
+
+/* Remove unwanted pink glows and remap "neon" classes to the new palette */
+.text-neonPink,
+.text-neonGreen { color: var(--accent) !important; }
+
+.border-neonPink,
+.border-neonGreen { border-color: rgba(108,74,226,0.85) !important; }
+
+.text-neonCyan { color: var(--accent-cyan) !important; }
+.border-neonCyan { border-color: rgba(0,182,255,0.85) !important; }
+
+/* Remove global pink box-shadows from .shadow-neon and similar helpers, enable hover shadow instead */
+.shadow-neon,
+.drop-shadow-\[0_0_15px_#ff1493\],
+.drop-shadow-\[0_0_8px_#ff1493\] {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+/* Buttons & clickable things: transparent background by default, show box-shadow on hover */
+button,
+a.inline-flex,
+a[role="button"],
+input[type="submit"],
+button[type="submit"],
+.group button,
+section button {
+  background: transparent !important;
+  -webkit-appearance: none;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-color: rgba(108,74,226,0.85) !important; /* default border mapped to accent */
+  color: var(--accent) !important;
+  transition: transform .18s ease, box-shadow .18s ease, color .18s ease;
+  will-change: transform, box-shadow;
+  cursor: pointer;
+}
+
+/* Preserve existing Tailwind rounded/padding but lift + shadow on hover */
+button:hover,
+a.inline-flex:hover,
+.group button:hover,
+input[type="submit"]:hover,
+button[type="submit"]:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: var(--btn-shadow) !important;
+  color: var(--accent-cyan) !important;
+}
+
+/* Stronger hover for primary-looking controls */
+button:active,
+a.inline-flex:active {
+  transform: translateY(-1px) scale(0.995);
+  box-shadow: var(--btn-shadow-strong) !important;
+}
+
+/* File input "file:" button adjustments (webkit) */
+input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-cyan) 100%);
+  color: #fff;
+  border: 0;
+  padding: .55rem .9rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+input[type="file"]::-webkit-file-upload-button:hover {
+  box-shadow: var(--btn-shadow);
+  transform: translateY(-2px);
+}
+
+/* Starfield: remove pink glow, use cyan + violet subtle glow */
+.star {
+  box-shadow: 0 0 8px var(--accent-cyan), 0 0 18px rgba(108,74,226,0.20) !important;
+}
+
+/* Replace inline gradients/drop shadows on headings/brand links with new colors */
+header .text-neonPink,
+h1, h2, h3, .font-display {
+  /* leave large headings styling mostly intact, but prefer violet/cyan glows */
+  color: inherit;
+  text-shadow: 0 0 10px rgba(108,74,226,0.45);
+}
+
+/* Links & nav hover: use accent colors not bright pink */
+nav a:hover,
+a:hover {
+  color: var(--accent-cyan) !important;
+  text-shadow: 0 0 10px rgba(0,182,255,0.18);
+}
+
+/* Cards & backgrounds */
+.bg-cardBg { background: var(--card-bg) !important; }
+
+/* Inputs & textareas focus states remapped to violet */
+input:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 8px 30px rgba(108,74,226,0.12);
+  border-color: rgba(108,74,226,0.7) !important;
+}
+
+/* Remove hard-coded pink image hover glow */
+.group img,
+img[class*="group-hover\\:drop-shadow"],
+img[class*="drop-shadow-\\[0_0_8px_#ff1493\\]"] {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Footer/link lists - remap hover */
+footer a:hover { color: var(--accent-cyan) !important; }
+
+/* Utility: force transparent button backgrounds in any leftover areas */
+[class*="bg-transparent"] {
+  background-color: transparent !important;
+}
+
+/* Accessibility/colors contrast improvements for remapped text colors */
+.text-neonPink, .text-neonGreen, .text-neonCyan, .border-neonPink, .border-neonGreen, .border-neonCyan {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
